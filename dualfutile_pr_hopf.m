@@ -1,14 +1,14 @@
 clc;
 
-syms r lambda real
+syms v6 lambda real
 % ============================================================
 % Define G_red
 % ============================================================
 Gred = [ ...
 0,          0,     -1,          0,          1,  0;
-0,          0,      0,          r,          0, -1;
+0,          0,      0,          v6,          0, -1;
 1,          0,     -4,         -1,          0,  0;
--1,         -1, -40000, -(40002+r),         -1,  0;
+-1,         -1, -40000, -(40002+v6),         -1,  0;
 -sym(1)/100, -sym(1)/100, 0, -sym(1)/100, -sym(301)/100, -1;
 0,          1,      0,          0,         -1, -4 ...
 ];
@@ -22,25 +22,25 @@ fprintf('====================================================\n\n');
 disp(collect(p,lambda))
 % Constant coefficient
 p0 = simplify(subs(p,lambda,0));
-fprintf('\ndet Gred(r) =\n');
+fprintf('\ndet Gred(v6) =\n');
 disp(p0)
-fprintf('\nValue of r for which det Gred(r)=0:\n');
-rzero = solve(p0 == 0,r);
-disp(vpa(rzero,30))
+fprintf('\nValue of v6 for which det Gred(v6)=0:\n');
+v6zero = solve(p0 == 0,v6);
+disp(vpa(v6zero,30))
 % ============================================================
-% 2. Evaluate at r = 5 and r = 40000
+% 2. Evaluate at v6 = 5 and v6 = 40000
 % ============================================================
-rvals = [5, 40000];
+v6vals = [5, 40000];
 tol = 1e-10;
-for k = 1:length(rvals)
-rr = rvals(k);
+for k = 1:length(v6vals)
+v6v = v6vals(k);
 fprintf('\n\n====================================================\n');
-fprintf('r = %g\n',rr);
+fprintf('v6 = %g\n',v6v);
 fprintf('====================================================\n');
 % --------------------------------------------------------
 % Exact symbolic rank
 % --------------------------------------------------------
-Asym = subs(Gred,r,rr);
+Asym = subs(Gred,v6,v6v);
 fprintf('Rank = %d\n\n',rank(Asym));
 % --------------------------------------------------------
 % High-precision eigenvalues
@@ -101,8 +101,8 @@ end
 % ============================================================
 % 3. Compare the two unstable counts
 % ============================================================
-A5     = double(vpa(subs(Gred,r,5),50));
-A40000 = double(vpa(subs(Gred,r,40000),50));
+A5     = double(vpa(subs(Gred,v6,5),50));
+A40000 = double(vpa(subs(Gred,v6,40000),50));
 ev5     = eig(A5);
 ev40000 = eig(A40000);
 nplus5 = nnz(real(ev5) > tol);
@@ -110,9 +110,9 @@ nplus40000 = nnz(real(ev40000) > tol);
 fprintf('\n\n====================================================\n');
 fprintf('FINAL COMPARISON\n');
 fprintf('====================================================\n');
-fprintf('Number of RHP eigenvalues at r = 5     : %d\n',nplus5);
-fprintf('Number of RHP eigenvalues at r = 40000 : %d\n',nplus40000);
+fprintf('Number of RHP eigenvalues at v6 = 5     : %d\n',nplus5);
+fprintf('Number of RHP eigenvalues at v6 = 40000 : %d\n',nplus40000);
 fprintf('\nExpected result:\n');
 fprintf('n_+(Gred(5))     = 1\n');
 fprintf('n_+(Gred(40000)) = 3\n');
-fprintf('\n det Gred(r) is nonzero for r in [5,40000],\n');
+fprintf('\n det Gred(v6) is nonzero for v6 in [5,40000],\n');

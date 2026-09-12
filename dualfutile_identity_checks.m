@@ -3,28 +3,27 @@ function dualfutile_identity_checks()
 
     clc;
     timer=tic;
-    syms a b c d f g h o r u v w x y z real
-    j=sym('j','real');
+    syms a b4 b10 c e1 e4 f7 f10 u2 u3 v5 v6 x8 x9 y11 y12 real
 
     %% 1. Full and reduced characteristic polynomials
     G=[ ...
-        -a, 0, x, 0, -h, 0, 0, w, 0;
-        0, -b-d, z, y, -j, -f, 0, v, u;
-        a, 0, -x-z, 0, h, 0, 0, 0, 0;
-        0, d, 0, -y-r, j, 0, 0, 0, 0;
-        -a, -d, x+z, y+r, -h-j, 0, 0, 0, 0;
-        0, -b, 0, 0, 0, -f-g, -c, w+v, u+o;
-        0, 0, 0, r, 0, -g, -c, 0, o;
-        0, b, 0, 0, 0, f, 0, -v-w, 0;
-        0, 0, 0, 0, 0, g, c, 0, -u-o];
+        -a, 0, 0, -e1, 0, u2, 0, 0, y12;
+        0, -b4-b10, 0, -e4, -f10, u3, v5, x9, y11;
+        0, 0, -c, 0, -f7, 0, v6, x8, 0;
+        -a, -b4, 0, -e1-e4, 0, u2+u3, v5+v6, 0, 0;
+        0, -b10, -c, 0, -f7-f10, 0, 0, x8+x9, y11+y12;
+        a, 0, 0, e1, 0, -u2-u3, 0, 0, 0;
+        0, b4, 0, e4, 0, 0, -v5-v6, 0, 0;
+        0, 0, c, 0, f7, 0, 0, -x8-x9, 0;
+        0, b10, 0, 0, f10, 0, 0, 0, -y11-y12];
 
     Gred=[ ...
-        0, 0, -z, 0, w, 0;
-        0, 0, 0, r, 0, -u;
-        a, 0, -a-h-x-z, -h, 0, 0;
-        -d, -d, -j, -d-j-y-r, -d, 0;
-        -b, -b, 0, -b, -v-b-f-w, -f;
-        0, c, 0, 0, -g, -o-c-g-u];
+        0, 0, -u3, 0, y12, 0;
+        0, 0, 0, v6, 0, -x9;
+        a, 0, -a-e1-u2-u3, -e1, 0, 0;
+        -b4, -b4, -e4, -b4-e4-v5-v6, -b4, 0;
+        -b10, -b10, 0, -b10, -b10-f10-y11-y12, -f10;
+        0, c, 0, 0, -f7, -c-f7-x8-x9];
 
     fullCoefficients=charpoly(G);
     reducedCoefficients=charpoly(Gred);

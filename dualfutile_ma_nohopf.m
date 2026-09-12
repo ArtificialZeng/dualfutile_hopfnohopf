@@ -96,12 +96,11 @@ assert(NR==5 && NT==5,'Unexpected delta1 or delta4 degree in the mass-action sou
    % fprintf('  E^sigma support = %d (%d adverse monomials)\n',numel(Esigma.k),nnz(Esigma.c<0));
    % fprintf('  Gamma1 ratio factor = %d positive monomials\n',numel(Gamma1Ratios.c));
    % fprintf('  Gamma2 ratio factor = %d positive monomials\n\n',numel(Gamma2Ratios.c));
-
-    %% 6. Remaining monomial factors in Gamma1,Gamma2.
-    % Packed source order:
-    % 1 delta1, 2 delta3, 3 delta4, 4 alpha, 5 tau1,
-    % 6 theta1, 7 tau2, 8 gamma, 9 theta2, 10 j,
-    % 11 d, 12 epsilon, 13 z/tau1=w/tau2, 14 r/theta1=u/theta2.
+   %% 6. Remaining monomial factors in Gamma1,Gamma2.
+   % Packed source order:
+   % 1 delta1, 2 delta3, 3 delta4, 4 alpha, 5 tau1,
+   % 6 theta1, 7 tau2, 8 gamma, 9 theta2, 10 e4,
+   % 11 b4, 12 epsilon, 13 u3/tau1=y12/tau2, 14 v6/theta1=x9/theta2.
     e1=zeros(1,16);
     e1([2 4 5 8 9 10 12]) = [4 1 1 1 1 4 3];
     Gamma1Base = struct('k',packrow(e1),'c',1);
@@ -309,37 +308,37 @@ function C = build_target_numerator()
     fprintf('Constructing det(lambda^2*D+lambda*DN-DLR) ...\n');
 
     id.delta1=1; id.delta3=2; id.delta4=3; id.alpha=4; id.tau1=5;
-    id.theta1=6; id.tau2=7; id.gamma=8; id.theta2=9; id.j=10;
-    id.d=11; id.epsilon=12; id.zOverTau1=13; id.rOverTheta1=14;
+    id.theta1=6; id.tau2=7; id.gamma=8; id.theta2=9; id.e4=10;
+    id.b4=11; id.epsilon=12; id.u3OverTau1=13; id.v6OverTheta1=14;
 
     O = pconst(1);
     delta1=pvar(id.delta1); delta3=pvar(id.delta3); delta4=pvar(id.delta4);
     alpha=pvar(id.alpha); tau1=pvar(id.tau1); theta1=pvar(id.theta1);
     tau2=pvar(id.tau2); gamma=pvar(id.gamma); theta2=pvar(id.theta2);
-    j=pvar(id.j); d=pvar(id.d); epsilon=pvar(id.epsilon);
-    zOverTau1=pvar(id.zOverTau1); rOverTheta1=pvar(id.rOverTheta1);
-
+    e4=pvar(id.e4); b4=pvar(id.b4); epsilon=pvar(id.epsilon);
+    u3OverTau1=pvar(id.u3OverTau1); v6OverTheta1=pvar(id.v6OverTheta1);
+    
     D = zero_matrix(4,4);
     D{1,1}=delta1; D{2,2}=O; D{3,3}=delta3; D{4,4}=delta4;
 
     DN = zero_matrix(4,4);
-    DN{1,1}=psum(alpha,j,tau1);       DN{1,2}=j;
-    DN{2,1}=j;                        DN{2,2}=psum(d,j,theta1);
-    DN{2,3}=d;                        DN{3,2}=d;
-    DN{3,3}=psum(d,epsilon,tau2);     DN{3,4}=epsilon;
-    DN{4,3}=epsilon;                  DN{4,4}=psum(epsilon,gamma,theta2);
+    DN{1,1}=psum(alpha,e4,tau1);       DN{1,2}=e4;
+    DN{2,1}=e4;                        DN{2,2}=psum(b4,e4,theta1);
+    DN{2,3}=b4;                        DN{3,2}=b4;
+    DN{3,3}=psum(b4,epsilon,tau2);     DN{3,4}=epsilon;
+    DN{4,3}=epsilon;                   DN{4,4}=psum(epsilon,gamma,theta2);
 
     DL = zero_matrix(4,2);
     DL{1,1}=alpha;
-    DL{2,1}=pscale(d,-1); DL{2,2}=pscale(d,-1);
-    DL{3,1}=pscale(d,-1); DL{3,2}=pscale(d,-1);
+    DL{2,1}=pscale(b4,-1); DL{2,2}=pscale(b4,-1);
+    DL{3,1}=pscale(b4,-1); DL{3,2}=pscale(b4,-1);
     DL{4,2}=gamma;
 
     R = zero_matrix(2,4);
-    R{1,1}=pscale(pprod(zOverTau1,tau1),-1);
-    R{1,3}=pprod(zOverTau1,tau2);
-    R{2,2}=pprod(rOverTheta1,theta1);
-    R{2,4}=pscale(pprod(rOverTheta1,theta2),-1);
+    R{1,1}=pscale(pprod(u3OverTau1,tau1),-1);
+    R{1,3}=pprod(u3OverTau1,tau2);
+    R{2,2}=pprod(v6OverTheta1,theta1);
+    R{2,4}=pscale(pprod(v6OverTheta1,theta2),-1);
 
     minusDLR=pmatmul(DL,R);
     for r=1:4
@@ -391,17 +390,17 @@ N6h = struct( ...
 
 % Explicit formulas from pen/paper change of variables stated in the paper for sanity check.
 N5hFormula = psum( ...
-    pprod(delta4,alpha,d,j,zOverTau1,rOverTheta1,theta1,tau2), ...
-    pprod(delta1,gamma,d,epsilon,zOverTau1,rOverTheta1,theta1,tau2));
+    pprod(delta4,alpha,b4,e4,u3OverTau1,v6OverTheta1,theta1,tau2), ...
+    pprod(delta1,gamma,b4,epsilon,u3OverTau1,v6OverTheta1,theta1,tau2));
 
 N6hFormula = psum( ...
-    pprod(alpha,d,j,zOverTau1,rOverTheta1,theta1,tau2,gamma), ...
-    pprod(alpha,d,j,zOverTau1,rOverTheta1,theta1,tau2,epsilon), ...
-    pprod(alpha,d,j,zOverTau1,rOverTheta1,theta1,tau2,theta2), ...
-    pprod(gamma,d,epsilon,zOverTau1,rOverTheta1,theta1,tau2,alpha), ...
-    pprod(gamma,d,epsilon,zOverTau1,rOverTheta1,theta1,tau2,j), ...
-    pprod(gamma,d,epsilon,zOverTau1,rOverTheta1,theta1,tau2,tau1), ...
-    pprod(alpha,gamma,epsilon,j,zOverTau1,rOverTheta1,theta1,tau2));
+    pprod(alpha,b4,e4,u3OverTau1,v6OverTheta1,theta1,tau2,gamma), ...
+    pprod(alpha,b4,e4,u3OverTau1,v6OverTheta1,theta1,tau2,epsilon), ...
+    pprod(alpha,b4,e4,u3OverTau1,v6OverTheta1,theta1,tau2,theta2), ...
+    pprod(gamma,b4,epsilon,u3OverTau1,v6OverTheta1,theta1,tau2,alpha), ...
+    pprod(gamma,b4,epsilon,u3OverTau1,v6OverTheta1,theta1,tau2,e4), ...
+    pprod(gamma,b4,epsilon,u3OverTau1,v6OverTheta1,theta1,tau2,tau1), ...
+    pprod(alpha,gamma,epsilon,e4,u3OverTau1,v6OverTheta1,theta1,tau2));
 
 % Verify the paper formulas against the parts computed from the QEP.
 assert_poly_equal(N5h,N5hFormula, ...
@@ -463,17 +462,17 @@ end
 % =======================================================================
 
 function [A,baseKey,NR,NT] = paper_source_matrix(C)
-    delta1=1; delta3=2; delta4=3; zOverTau1=13; rOverTheta1=14;
+    delta1=1; delta3=2; delta4=3; u3OverTau1=13; v6OverTheta1=14;
 
 %keeping track of the exponents of the 5 variables involved in the internal mass action change from mu' to mu
     e1=double(getexp(C.k,delta1));
     e3=double(getexp(C.k,delta3));
     e4=double(getexp(C.k,delta4));
-    iXi=double(getexp(C.k,zOverTau1));
-    iEta=double(getexp(C.k,rOverTheta1));
+    iXi=double(getexp(C.k,u3OverTau1));
+    iEta=double(getexp(C.k,v6OverTheta1));
 
-    % z/tau1=w/tau2=xi2/(delta3*(1+xi2));
-    % r/theta1=u/theta2=eta2/(1+eta2).
+    % u3/tau1=y12/tau2=xi2/(delta3*(1+xi2));
+    % v6/theta1=x9/theta2=eta2/(1+eta2).
     er=e1;
     es=e4;
     assert(all(iXi<=4) && all(iEta<=4), ...
@@ -488,12 +487,12 @@ function [A,baseKey,NR,NT] = paper_source_matrix(C)
     assert(NR<=5 && NT<=5,'Delta1 or delta4 degree exceeds the transform table.');
 
     base=C.k;
-    for v=[delta1 delta3 delta4 zOverTau1 rOverTheta1]
+   for v=[delta1 delta3 delta4 u3OverTau1 v6OverTheta1]
         base=clearexp(base,v);
     end
     base=setexp(base,delta3,keptExp);
 
-    % Column order: z/tau1, r/theta1, delta1, delta4.
+    % Column order: u3/tau1, v6/theta1, delta1, delta4.
     src=1+iXi+5*iEta+25*er+25*(NR+1)*es;
     nsrc=25*(NR+1)*(NT+1);
 
@@ -572,7 +571,7 @@ function E = paper_E()
     if ~isempty(saved), E=saved; return; end
 
     alpha=pvar(4); tau1=pvar(5); theta1=pvar(6); tau2=pvar(7);
-    gamma=pvar(8); theta2=pvar(9); j=pvar(10); epsilon=pvar(12);
+    gamma=pvar(8); theta2=pvar(9); e4=pvar(10); epsilon=pvar(12);
     X=padd(alpha,tau1);
     U=padd(X,theta1);
     Y=padd(gamma,theta2);
@@ -602,7 +601,7 @@ function E = paper_E()
     % The quadratic variable is Z=gamma+theta2+tau2 (not Y=gamma+theta2).
     Q01=psum(pprod(leading,Z,Z),pprod(middle,Z),F);
 
-    E=psum(pmul(j,Q10),pmul(epsilon,Q01),pprod(j,epsilon,Q11));
+    E=psum(pmul(e4,Q10),pmul(epsilon,Q01),pprod(e4,epsilon,Q11));
     assert(numel(E.k)==113 && nnz(E.c<0)==39, ...
         'Main-envelope support check failed.');
 
@@ -640,7 +639,7 @@ function E = paper_E()
 end
 
 function P = swap_arms(P)
-    % alpha<->gamma, tau1<->theta2, theta1<->tau2, j<->epsilon.
+  % alpha<->gamma, tau1<->theta2, theta1<->tau2, e4<->epsilon.
     exponents=decodekeys(P.k);
     pairs=[4 8;5 9;6 7;10 12];
     for r=1:size(pairs,1)

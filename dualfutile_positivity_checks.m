@@ -10,7 +10,7 @@ function dualfutile_positivity_checks()
 %
 % directly from the sixteen positive Jacobian parameters
 %
-%   a,b,c,d,f,g,h,j,o,r,u,v,w,x,y,z.
+%   a,b4,b10,c,e1,e4,f7,f10,u2,u3,v5,v6,x8,x9,y11,y12.
 %
 % It then verifies, by exact sparse-polynomial arithmetic, that:
 %   (1) c0,c1,...,c4 are coefficientwise positive;
@@ -40,68 +40,68 @@ function dualfutile_positivity_checks()
     fprintf('Preliminary coefficientwise positivity checks\n\n');
     timer = tic;
 
-    id.a=1;  id.b=2;  id.c=3;  id.d=4;
-    id.f=5;  id.g=6;  id.h=7;  id.j=8;
-    id.o=9;  id.r=10; id.u=11; id.v=12;
-    id.w=13; id.x=14; id.y=15; id.z=16;
+    id.a=1;   id.b4=2;  id.b10=3; id.c=4;
+    id.e1=5;  id.e4=6;  id.f7=7;  id.f10=8;
+    id.u2=9;  id.u3=10; id.v5=11; id.v6=12;
+    id.x8=13; id.x9=14; id.y11=15; id.y12=16;
 
-    a=pvar(id.a); b=pvar(id.b); cvar=pvar(id.c); d=pvar(id.d);
-    f=pvar(id.f); g=pvar(id.g); h=pvar(id.h); j=pvar(id.j);
-    o=pvar(id.o); r=pvar(id.r); u=pvar(id.u); v=pvar(id.v);
-    w=pvar(id.w); x=pvar(id.x); y=pvar(id.y); z=pvar(id.z);
+    a=pvar(id.a);     b4=pvar(id.b4);   b10=pvar(id.b10); c=pvar(id.c);
+    e1=pvar(id.e1);   e4=pvar(id.e4);   f7=pvar(id.f7);   f10=pvar(id.f10);
+    u2=pvar(id.u2);   u3=pvar(id.u3);   v5=pvar(id.v5);   v6=pvar(id.v6);
+    x8=pvar(id.x8);   x9=pvar(id.x9);   y11=pvar(id.y11); y12=pvar(id.y12);
 
     fprintf('Constructing the characteristic coefficients directly from G ...\n');
 
-    % Species order: (A,B,X,Y,K,F,C,V,U).
+    % Species order: (A,B,C,E,F,U,V,X,Y).
     % We construct -G, since
     %   det(lambda*I-G)=det(lambda*I+(-G)).
     minusG=zero_matrix(9,9);
 
     minusG{1,1}=a;
-    minusG{1,3}=pscale(x,-1);
-    minusG{1,5}=h;
-    minusG{1,8}=pscale(w,-1);
+    minusG{1,4}=e1;
+    minusG{1,6}=pscale(u2,-1);
+    minusG{1,9}=pscale(y12,-1);
 
-    minusG{2,2}=padd(b,d);
-    minusG{2,3}=pscale(z,-1);
-    minusG{2,4}=pscale(y,-1);
-    minusG{2,5}=j;
-    minusG{2,6}=f;
-    minusG{2,8}=pscale(v,-1);
-    minusG{2,9}=pscale(u,-1);
+    minusG{2,2}=padd(b4,b10);
+    minusG{2,4}=e4;
+    minusG{2,5}=f10;
+    minusG{2,6}=pscale(u3,-1);
+    minusG{2,7}=pscale(v5,-1);
+    minusG{2,8}=pscale(x9,-1);
+    minusG{2,9}=pscale(y11,-1);
 
-    minusG{3,1}=pscale(a,-1);
-    minusG{3,3}=padd(x,z);
-    minusG{3,5}=pscale(h,-1);
+    minusG{3,3}=c;
+    minusG{3,5}=f7;
+    minusG{3,7}=pscale(v6,-1);
+    minusG{3,8}=pscale(x8,-1);
 
-    minusG{4,2}=pscale(d,-1);
-    minusG{4,4}=padd(y,r);
-    minusG{4,5}=pscale(j,-1);
+    minusG{4,1}=a;
+    minusG{4,2}=b4;
+    minusG{4,4}=padd(e1,e4);
+    minusG{4,6}=pscale(padd(u2,u3),-1);
+    minusG{4,7}=pscale(padd(v5,v6),-1);
 
-    minusG{5,1}=a;
-    minusG{5,2}=d;
-    minusG{5,3}=pscale(padd(x,z),-1);
-    minusG{5,4}=pscale(padd(y,r),-1);
-    minusG{5,5}=padd(h,j);
+    minusG{5,2}=b10;
+    minusG{5,3}=c;
+    minusG{5,5}=padd(f7,f10);
+    minusG{5,8}=pscale(padd(x8,x9),-1);
+    minusG{5,9}=pscale(padd(y11,y12),-1);
 
-    minusG{6,2}=b;
-    minusG{6,6}=padd(f,g);
-    minusG{6,7}=cvar;
-    minusG{6,8}=pscale(padd(w,v),-1);
-    minusG{6,9}=pscale(padd(u,o),-1);
+    minusG{6,1}=pscale(a,-1);
+    minusG{6,4}=pscale(e1,-1);
+    minusG{6,6}=padd(u2,u3);
 
-    minusG{7,4}=pscale(r,-1);
-    minusG{7,6}=g;
-    minusG{7,7}=cvar;
-    minusG{7,9}=pscale(o,-1);
+    minusG{7,2}=pscale(b4,-1);
+    minusG{7,4}=pscale(e4,-1);
+    minusG{7,7}=padd(v5,v6);
 
-    minusG{8,2}=pscale(b,-1);
-    minusG{8,6}=pscale(f,-1);
-    minusG{8,8}=padd(v,w);
+    minusG{8,3}=pscale(c,-1);
+    minusG{8,5}=pscale(f7,-1);
+    minusG{8,8}=padd(x8,x9);
 
-    minusG{9,6}=pscale(g,-1);
-    minusG{9,7}=pscale(cvar,-1);
-    minusG{9,9}=padd(u,o);
+    minusG{9,2}=pscale(b10,-1);
+    minusG{9,5}=pscale(f10,-1);
+    minusG{9,9}=padd(y11,y12);
 
     ccoef=cell(1,7);
     ccoef{1}=pconst(1); % c0
@@ -175,26 +175,28 @@ function dualfutile_positivity_checks()
     PDelta4=positive_part(Delta4);
     negativeDelta4=negative_part(Delta4);
 
-    % Every negative monomial of Delta4 contains a*c*f*j*r*w.
-    negativeCore=pprod(a,cvar,f,j,r,w);
+    % Every negative monomial of Delta4 contains a*c*f10*e4*v6*y12.
+    negativeCore=pprod(a,c,f10,e4,v6,y12);
     coreKey=negativeCore.k;
     assert(numel(coreKey)==1 && all(divides_key(coreKey,negativeDelta4.k)), ...
-        'A negative Delta_4 monomial does not contain a*c*f*j*r*w.');
+    'A negative Delta_4 monomial does not contain a*c*f10*e4*v6*y12.');
     NDelta4=negativeDelta4;
     NDelta4.k=NDelta4.k-coreKey;
     check_integer_poly(NDelta4);
 
     % On the mass-action locus,
-    %   f*j*r*w*(x+z)*(o+u)=h*g*z*u*(v+w)*(y+r).
+    %   f10*e4*v6*y12*(u2+u3)*(x8+x9)
+    %      =e1*f7*u3*x9*(y11+y12)*(v5+v6).
     % Therefore the corrected numerator is
-    %   (x+z)(o+u)P_Delta4
-    %   -(v+w)(y+r)a*c*h*g*z*u*N_Delta4.
-    left=pprod(padd(x,z),padd(o,u),PDelta4);
-    right=pprod(padd(v,w),padd(y,r),a,cvar,h,g,z,u,NDelta4);
+    %   (u2+u3)(x8+x9)P_Delta4
+    %   -(y11+y12)(v5+v6)a*c*e1*f7*u3*x9*N_Delta4.
+    left=pprod(padd(u2,u3),padd(x8,x9),PDelta4);
+    right=pprod(padd(y11,y12),padd(v5,v6), ...
+        a,c,e1,f7,u3,x9,NDelta4);
     correctedDelta4=padd(left,right,-1);
 
     assert_positive( ...
-        '(x+z)(o+u)P_Delta4-(v+w)(y+r)achgzu N_Delta4', ...
+        '(u2+u3)(x8+x9)P_Delta4-(y11+y12)(v5+v6)ace1f7u3x9 N_Delta4', ...
         correctedDelta4,4295079);
 
     fprintf('\nAll requested coefficientwise positivity checks passed.\n');
