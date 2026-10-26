@@ -7,3 +7,7 @@ MATLAB scripts accompanying the paper:
 See the paper’s Implementation section for details.
 
 All scripts were tested with MATLAB R2026a on macOS using an Apple M2 processor. 
+
+## Optional exact Python verification
+
+[Eight-parameter symmetry slice](verification/symmetry_slice/README.md): an independently written exact spectral classification and optional Python checkers. The unrestricted sixteen-parameter Conjecture 3.1 remains unresolved; priority of this symmetry corollary is unconfirmed.
